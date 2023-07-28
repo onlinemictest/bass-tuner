@@ -1,0 +1,346 @@
+@media only screen and (max-width: 425px) { .xs-dis-block { display: block } }
+@media only screen and (max-width: 425px) { .wid-xxs-100 { width: 100%!important } }
+
+#violin-tuner {
+  margin: 30px 0 60px;
+
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+
+#violin-tuner-img {
+  width: 100%;
+  height: 100%;
+  padding-right: 5.5vw;
+  display: flex;
+}
+
+@media only screen and (max-width: 425px) {
+  #violin-tuner {
+    margin-top: 0;
+    padding-left: 12.5vw;
+    padding-right: 12.5vw;
+  }
+  #violin-tuner-img {
+    padding-right: 0;
+  }
+}
+
+@media only screen and (min-width: 1680px) {
+  #violin-tuner {
+    padding: 0 8.5vw;
+  }
+}
+
+[id$="-fill"] { 
+  display: none;
+}
+
+.match-circle {
+  border-radius: 100%;
+  width: 70%;
+  height: 70%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -35%;
+  margin-left: -35%;
+  text-align: center;
+  font-family: 'Open Sans Condensed';
+  font-weight: bold;
+  transform-origin: center center;
+}
+
+.note-shape::before {
+  content: '';
+  width: 100%;
+  height: 100%;
+  border-radius: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: scale(1.15) rotateZ(70deg) scaleX(0.75);
+}
+
+#match-circle-l {
+  transform: translateX(150%);
+  will-change: transform;
+}
+
+#match-circle-l:not(.note-shape), #match-circle-l.note-shape::before {
+  background: #e25d1b;
+  /* background: #e25d1b7c; */
+}
+
+#match-circle-r {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#match-circle-r:not(.note-shape), #match-circle-r.note-shape::before {
+  background: rgba(67, 111, 142, 0.175);
+}
+
+#inner-circle {
+  border-radius: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  will-change: transform;
+}
+
+#inner-circle:not(.note-shape), 
+#inner-circle.note-shape::before {
+  background: rgba(0, 0, 0, 0.125);
+}
+
+[id^="circle-"] {
+  /* display: none; */
+  opacity: 0;
+  will-change: opacity;
+  position: absolute;
+  z-index: 2;
+}
+
+[id^="circle-text-"] {
+  font-size: 2.5em;
+  color: rgb(67,111,142);
+}
+
+#circle-note {
+  font-size: 10em;
+  will-change: contents;
+  color: #fbfbfb88;
+}
+
+#circle-text-error {
+  color: indianred;
+  font-size: 1rem;
+}
+
+#circle-text-play { 
+  opacity: 1;
+}
+
+#audio-start {
+  width: 135px;
+  height: 135px;
+  top: 50%;
+  margin-top: -67.5px;
+  left: -67.5px;
+}
+
+#audio-pause {
+  width: 45px;
+  height: 45px;
+  display: none;
+  position: absolute;
+  left: 1.5px;
+  bottom: 1.5px;
+  margin-left: -22.5px;
+  margin-bottom: -11.25px;
+}
+
+@media only screen and (max-width: 425px) {
+  #audio-start {
+    top: 0;
+    left: 50%;
+    margin-left: -67.5px;
+  }
+  #audio-pause {
+    left: 50%;
+    margin-bottom: -37.5px;
+  }
+}
+
+.tune-text {
+  position: absolute;
+  text-align: center;
+  width: 100%;
+  font-family: 'Open Sans Condensed';
+  font-weight: bold;
+  font-size: 1.6em;
+  color: rgb(67,111,142);
+  transition: transform 350ms ease;
+  will-change: transform;
+}
+
+#tune-up-text { 
+  top: 1vw; 
+  transform: translateY(-150%);
+}
+
+#tune-down-text { 
+  bottom: 1vw; 
+  transform: translateY(150%);
+}
+
+@media only screen and (max-width: 425px) {
+  #tune-up-text { top: 2.5vw }
+  #tune-down-text { bottom: 2.5vw }
+}
+
+.tune-text.show {
+  transform: translateY(0)!important;
+}
+
+.audio-button {
+  background: #fbfbfb;
+  z-index: 10;
+  position: absolute;
+  margin: 0 auto;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  transition: transform 1s ease;
+  border-radius: 100%;
+  /* margin-bottom: 20px; */
+}
+
+.square-ratio {
+  position: relative;
+}
+.square-ratio::before {
+  content: "";
+  width: 1px;
+  margin-left: -1px;
+  float: left;
+  height: 0;
+  padding-top: 100%;
+}
+.square-ratio::after { /* to clear float */
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.border-box {
+  border: .2vw solid rgb(67,111,142);
+  overflow: hidden;
+  contain: content;
+  border-radius: 25px;
+}
+
+@media only screen and (max-width: 1024px) {
+  .border-box {
+    border: .25 solid rgb(67,111,142);
+  }
+}
+
+@media only screen and (max-width: 425px) {
+  .border-box {
+    border: .5vw solid rgb(67,111,142);
+  }
+}
+
+#tune-up-box {
+  position: absolute;
+  font-size: 1vw;
+  background: #fbfbfb;
+  width: 100%;
+  height: 100%;
+}
+
+@media only screen and (max-width: 1024px) {
+  #tune-up-box {
+    font-size: 1.5vw;
+  }
+}
+
+@media only screen and (max-width: 425px) {
+  #tune-up-box {
+    font-size: 3vw;
+  }
+  .square-ratio {
+    margin-top: -15vw;
+  }
+}
+
+#circle-text-complete {
+  color: #fbfbfb;
+}
+.all-tuned-up #match-circle-r.note-shape::before {
+  background: rgb(67,111,142);
+}
+.all-tuned-up #match-circle-l {
+  opacity: 0;
+}
+
+.tuners-privacy-box {
+  font-family: 'Open Sans Condensed';
+  font-weight: 700;
+  text-align: center;
+  min-height: 150px;
+  max-width: 500px;
+  margin: auto;
+  /* margin-top: -16.5vw; */
+  padding: 0 1vw;
+  /* top: -12.5vw; */
+  color: rgb(67,111,142);
+}
+
+.shrink-animation, .blob-animation {
+  transform-origin: center center;
+  animation-duration: 125ms;
+  animation-timing-function: ease;
+}
+
+.shrink-animation {
+  animation-name: shrink-animation;
+}
+
+.blob-animation {
+  animation-name: blob-animation;
+}
+
+.shockwave {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 100%;
+  color: #e25c1b;
+  animation-name: shockwave;
+  animation-duration: 1.2s;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in; 
+}
+@keyframes shockwave {
+  0% {
+    transform: scale(1);
+    opacity: 1; 
+    box-shadow: 0 0 2px, inset 0 0 1px; 
+  }
+  89.9999% {
+    transform: scale(1);
+    opacity: 0;
+    box-shadow: 0 0 50px, inset 0 0 10px;
+  }
+  90%, 100% {
+    transform: scale(1);
+    opacity: 0;
+    box-shadow: 0 0 2px, inset 0 0 1px; 
+  }
+}
+.explode {
+  animation-name: explode;
+  animation-duration: 350ms;
+  animation-timing-function: ease; 
+}
+@keyframes explode {
+  0% { transform: scale(1) rotate(0) }
+  10% { transform: scale(3) rotate(20deg) }
+  100% { transform: scale(1) rotate(0) }
+}
+@keyframes shrink-animation {
+  0% { transform : translateY(-10vw) scale(3) }
+  100% { transform: translateY(0) scale(1) }
+}
+@keyframes blob-animation {
+  0% { transform : translateY(10vw) scale(0.33) }
+  100% { transform: translateY(0) scale(1) }
+}
