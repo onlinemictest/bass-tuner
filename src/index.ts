@@ -24,7 +24,7 @@ import { closestBy, flat, queue } from "./array-fns";
 import { isTruthy, once, set, throttle, timeout } from "./helper-fns";
 import { clamp, round } from "./math-fns";
 
-console.log('Licensed under AGPL-3.0: https://github.com/onlinemictest/violin-tuner')
+console.log('Licensed under AGPL-3.0: https://github.com/onlinemictest/bass-tuner')
 
 const BUFFER_SIZE = 8192; // byte
 const INTERVAL_TIME = 185; // ms
@@ -40,16 +40,16 @@ const NOTES = flat(OCTAVES.map(o => NOTE_STRINGS.map(n => `${n}_${o}`)));
 
 type Note_Octave = `${NoteString}_${Octave}`;
 
-const VIOLIN_FREQ = {
-  'G_3': 195.9977,
-  'D_4': 293.6648,
-  'A_4': 440.0000,
-  'E_5': 659.2551,
+const BASS_FREQ = {
+  'E_1': 41.20344,
+  'A_1': 55.00000,
+  'D_2': 73.41619,
+  'G_2': 97.99886,
 };
 
-type ViolinNote_Octave = keyof typeof VIOLIN_FREQ;
+type BassNote_Octave = keyof typeof BASS_FREQ;
 
-const VIOLIN_NOTES = Object.keys(VIOLIN_FREQ) as ViolinNote_Octave[];
+const BASS_NOTES = Object.keys(BASS_FREQ) as BassNote_Octave[];
 
 const ANIM_DURATION = 500;
 
@@ -58,8 +58,8 @@ const translate = {
   Y: 'translateY',
 };
 
-const getClosestViolinNote = (n?: Note_Octave) => n
-  ? closestBy(VIOLIN_NOTES, n, (a, b) => Math.abs(NOTES.indexOf(a) - NOTES.indexOf(b))) as ViolinNote_Octave
+const getClosestBassNote = (n?: Note_Octave) => n
+  ? closestBy(BASS_NOTES, n, (a, b) => Math.abs(NOTES.indexOf(a) - NOTES.indexOf(b))) as BassNote_Octave
   : undefined;
 
 initGetUserMedia();
@@ -68,7 +68,7 @@ const nonSilentGroup = (g: (Note_Octave | undefined)[]): g is Note_Octave[] =>
   g[0] !== undefined;
 
 const MAGIC_NUMBER = 3;
-const isNoisy = (currNote: ViolinNote_Octave | undefined) =>
+const isNoisy = (currNote: BassnNote_Octave | undefined) =>
   (g: (Note_Octave | undefined)[]) =>
     g[0] !== currNote || (g[0] === currNote && g.length <= MAGIC_NUMBER);
 
@@ -106,7 +106,7 @@ const shrinkAnimation: (pauseEl: HTMLElement) => void = 'animate' in Element.pro
 
 // @ts-expect-error
 Aubio().then(({ Pitch }) => {
-  const violinTuner = document.getElementById('violin-tuner') as HTMLDivElement | null;
+  const bassTuner = document.getElementById('bass-tuner') as HTMLDivElement | null;
   const startEl = document.getElementById('audio-start') as HTMLButtonElement | null;
   const pauseEl = document.getElementById('audio-pause') as HTMLButtonElement | null;
   const tuneUpText = document.getElementById('tune-up-text') as HTMLDivElement | null;
@@ -124,14 +124,14 @@ Aubio().then(({ Pitch }) => {
   tunedJingle.volume = 0.001;
   const JINGLE_VOLUME = 0.5; // set after initial play to get around Safari limitation
 
-  const noteEls = new Map(Object.keys(VIOLIN_FREQ)
+  const noteEls = new Map(Object.keys(BASS_FREQ)
     .map(n => [n, document.getElementById(n) as unknown as SVGGElement]));
 
-  const fillEls = new Map(Object.keys(VIOLIN_FREQ)
+  const fillEls = new Map(Object.keys(BASS_FREQ)
     .map(n => [n, document.getElementById(`${n}-fill`) as unknown as SVGGElement]));
 
   if (false
-    || !violinTuner
+    || !bassTuner
     || !startEl
     || !pauseEl
     || !tuneUpText
@@ -149,7 +149,7 @@ Aubio().then(({ Pitch }) => {
     || ![...fillEls.values()].every(isTruthy)
   ) {
     console.log(
-    violinTuner,
+    bassTuner,
     startEl,
     pauseEl,
     tuneUpText,
@@ -220,7 +220,7 @@ Aubio().then(({ Pitch }) => {
   }, { once: true });
 
   startEl.addEventListener('click', async () => {
-    violinTuner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    bassTuner.scrollIntoView({ behavior: 'smooth', block: 'center' });
     startEl.style.display = 'none';
     pauseEl.style.display = 'block';
     shrinkAnimation(pauseEl);
@@ -249,13 +249,13 @@ Aubio().then(({ Pitch }) => {
       let victory = false;
       let victoryPause = false;
       let prevNoteString: NoteString | undefined;
-      let currNote: ViolinNote_Octave | undefined;
-      let prevNote: ViolinNote_Octave | undefined;
+      let currNote: BassNote_Octave | undefined;
+      let prevNote: BassNote_Octave | undefined;
 
       const noteBuffer: (Note_Octave | undefined)[] = new Array(NOTE_BUFFER_SIZE).fill(undefined);
 
-      let centsBufferMap: Map<ViolinNote_Octave, number[]> = new Map(VIOLIN_NOTES.map(n => [n, []]));
-      let jinglePlayedMap: Map<ViolinNote_Octave, boolean> = new Map(VIOLIN_NOTES.map(n => [n, false]));
+      let centsBufferMap: Map<BassNote_Octave, number[]> = new Map(BASS_NOTES.map(n => [n, []]));
+      let jinglePlayedMap: Map<BassNote_Octave, boolean> = new Map(BASS_NOTES.map(n => [n, false]));
 
       const initialEvent = await once(scriptProcessor, 'audioprocess');
       const initialBuffer = initialEvent.inputBuffer.getChannelData(0);
@@ -284,7 +284,7 @@ Aubio().then(({ Pitch }) => {
         const groupedByNote = [...groupedUntilChanged(noteBuffer)];
         const groupedByNoteNonSilent = groupedByNote.filter(nonSilentGroup)
 
-        currNote = getClosestViolinNote(groupedByNoteNonSilent.find(g => g.length > MAGIC_NUMBER)?.[0]);
+        currNote = getClosestBassNote(groupedByNoteNonSilent.find(g => g.length > MAGIC_NUMBER)?.[0]);
 
         // If there has been nothing but noise for the last couple of seconds:
         const isLongNoise = groupedByNoteNonSilent.every(g => g.length <= MAGIC_NUMBER);
@@ -315,11 +315,11 @@ Aubio().then(({ Pitch }) => {
             resetable = true;
             softResettable = true;
 
-            const violinNoteName = currNote;
+            const bassNoteName = currNote;
 
-            const isTooLow = frequency < VIOLIN_FREQ[violinNoteName];
+            const isTooLow = frequency < BASS_FREQ[bassNoteName];
 
-            const baseCents = noteName === violinNoteName
+            const baseCents = noteName === bassNoteName
               ? note.cents
               : isTooLow ? -50 : 50;
 
@@ -327,20 +327,20 @@ Aubio().then(({ Pitch }) => {
             const sensitivity = Math.min(10, Math.round(100 / absCents100));
             const centsRounded = round(baseCents, sensitivity);
 
-            const centsBuffer = centsBufferMap.get(violinNoteName) ?? [];
-            const jinglePlayed = jinglePlayedMap.get(violinNoteName) ?? false;
-            if (noteName === violinNoteName && centsRounded === 0) centsBuffer.push(0);
+            const centsBuffer = centsBufferMap.get(bassNoteName) ?? [];
+            const jinglePlayed = jinglePlayedMap.get(bassNoteName) ?? false;
+            if (noteName === bassNoteName && centsRounded === 0) centsBuffer.push(0);
 
             const tuneRatio = clamp(centsBuffer.length / TUNE_BUFFER_SIZE);
 
             const centsUI = centsRounded * (1 - tuneRatio);
 
-            const isClose = noteName === violinNoteName && centsUI === 0;
+            const isClose = noteName === bassNoteName && centsUI === 0;
             updateTuneText(isClose, isTooLow);
 
             pluckAString.style.opacity = '0';
             noteSpan.style.opacity = '1';
-            const currNoteString = violinNoteName.split('_')[0] as NoteString;
+            const currNoteString = bassNoteName.split('_')[0] as NoteString;
             if (prevNoteString !== currNoteString) noteSpan.innerText = currNoteString
             prevNoteString = currNoteString;
 
@@ -354,9 +354,9 @@ Aubio().then(({ Pitch }) => {
             matchCircleL.style.transform = `${translate.Y}(${-centsUI}%)`;
 
             if (tuneRatio === 1 && !jinglePlayed) {
-              set(noteEls.get(violinNoteName)?.querySelector('path')?.style, 'fill', 'rgb(67,111,142)');
-              set(fillEls.get(violinNoteName)?.style, 'display', 'block');
-              jinglePlayedMap.set(violinNoteName, true);
+              set(noteEls.get(bassNoteName)?.querySelector('path')?.style, 'fill', 'rgb(67,111,142)');
+              set(fillEls.get(bassNoteName)?.style, 'display', 'block');
+              jinglePlayedMap.set(bassNoteName, true);
 
               // give animation time to finish
               timeout(ANIM_DURATION).then(() => {
@@ -366,21 +366,21 @@ Aubio().then(({ Pitch }) => {
                 if ([...fillEls.values()].every(el => el.style.display === 'block') && !victory) {
                   victory = true;
                   victoryPause = true;
-                  violinTuner.classList.add('all-tuned-up');
+                  bassTuner.classList.add('all-tuned-up');
                   noteSpan.style.opacity = '0';
                   allTunedUp.style.opacity = '1';
                   toggleClass(allTunedUp, 'explode');
 
                   // Do a reset
                   currNote = undefined;
-                  jinglePlayedMap = new Map(VIOLIN_NOTES.map(n => [n, false]));
-                  centsBufferMap = new Map(VIOLIN_NOTES.map(n => [n, []]));
+                  jinglePlayedMap = new Map(BASS_NOTES.map(n => [n, false]));
+                  centsBufferMap = new Map(BASS_NOTES.map(n => [n, []]));
                   matchCircleL.style.transform = `${translate.Y}(125%)`;
                   updateTuneText(true);
 
                   timeout(VICTORY_DURATION).then(() => {
                     victoryPause = false;
-                    violinTuner.classList.remove('all-tuned-up');
+                    bassTuner.classList.remove('all-tuned-up');
                     allTunedUp.style.opacity = '0';
                   });
                 }
@@ -397,10 +397,10 @@ Aubio().then(({ Pitch }) => {
           innerCircle.style.transition = 'transform 100ms'
           innerCircle.style.transform = `scale(1)`;
           softResettable = false;
-          jinglePlayedMap = new Map(VIOLIN_NOTES.map(n => n === currNote
+          jinglePlayedMap = new Map(BASS_NOTES.map(n => n === currNote
             ? [n, jinglePlayedMap.get(n) ?? false]
             : [n, false]));
-          centsBufferMap = new Map(VIOLIN_NOTES.map(n => n === currNote
+          centsBufferMap = new Map(BASS_NOTES.map(n => n === currNote
             ? [n, centsBufferMap.get(n) ?? []]
             : [n, []]));
         }
@@ -409,8 +409,8 @@ Aubio().then(({ Pitch }) => {
           innerCircle.style.transition = 'transform 100ms'
           innerCircle.style.transform = `scale(1)`;
           softResettable = false;
-          jinglePlayedMap = new Map(VIOLIN_NOTES.map(n => [n, false]));
-          centsBufferMap = new Map(VIOLIN_NOTES.map(n => [n, []]));
+          jinglePlayedMap = new Map(BASS_NOTES.map(n => [n, false]));
+          centsBufferMap = new Map(BASS_NOTES.map(n => [n, []]));
         }
       }, INTERVAL_TIME);
     } catch (err) {
